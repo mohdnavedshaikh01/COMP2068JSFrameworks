@@ -1,0 +1,38 @@
+<div class="container mt-5">
+  <!-- Main Heading for Contact Section -->
+  <h1 class="text-center">Contact Me</h1>
+  
+  <!-- Contact Form -->
+  <form action="/send-email" method="POST" id="contactForm">
+    
+    <!-- Name Input Field -->
+    <div class="form-group">
+      <!-- Label for the name field -->
+      <label for="name">Your Name</label>
+      <!-- Input field for the name -->
+      <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+    </div>
+    
+    <!-- Email Input Field -->
+    <div class="form-group">
+      <!-- Label for the email field -->
+      <label for="email">Your Email</label>
+      <!-- Input field for the email -->
+      <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+    </div>
+    
+    <!-- Message Textarea -->
+    <div class="form-group">
+      <!-- Label for the message field -->
+      <label for="message">Your Message</label>
+      <!-- Textarea for the user to enter the message -->
+      <textarea class="form-control" id="message" name="message" rows="5" placeholder="Enter your message" required></textarea>
+    </div>
+    
+    <!-- Submit Button for Sending the Form -->
+    <button type="submit" class="btn btn-primary">Send</button>
+  </form>
+  
+  <!-- Response Message (will show after form submission) -->
+  <div id="responseMessage" class="mt-3"></div>
+</div>
