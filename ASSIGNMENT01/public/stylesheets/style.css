@@ -1,167 +1,146 @@
 /* General Body and Header Styling */
 body {
-  font-family: Arial, sans-serif; /* Sets the font for the body */
+  font-family: Arial, sans-serif;
 }
 
-h1 {
-  color: #333; /* Dark color for the heading */
+/* Ensures elements do not overflow the screen */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Profile Image Styling */
+/* Profile Image - Responsive */
 .profile-img {
-  width: 300px;  /* Small width for the profile image */
-  height: 300px; /* Small height for the profile image */
-  border-radius: 50%; /* Makes the image round */
-  object-fit: cover; /* Ensures the image fits well inside the circle */
-  display: block; /* Makes the image a block element */
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
   margin-bottom: 40px;
 }
 
-/* Container Padding for Spacing */
-.container {
-  padding: 20px; /* Adds padding inside the container */
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .profile-img {
+    width: 250px;
+    height: 250px;
+  }
 }
 
-/* Form Field Spacing */
-.form-group {
-  margin-bottom: 20px;  /* Adds space between form fields */
+@media (max-width: 768px) {
+  .profile-img {
+    width: 200px;
+    height: 200px;
+  }
 }
 
-.form-control {
-  padding: 10px;  /* Adds padding inside the input fields */
-}
-
-/* Button Padding */
-.btn {
-  padding: 10px 20px;  /* Adds space around the button text */
-}
-
-/* Space Below the Heading */
-h1 {
-  padding-bottom: 20px; /* Adds space below the header */
-}
-
-/* Response Message Styling */
-#responseMessage {
-  margin-top: 20px; /* Adds space above the response message */
-  font-size: 1.2rem; /* Increases font size for the response message */
-  color: green;  /* Color for the response message text */
-}
-
-/* Ensure Form Fields Take Up Full Width */
-input.form-control, textarea.form-control {
-  width: 100%; /* Makes input fields and text areas full width */
-  box-sizing: border-box; /* Ensures padding doesn't affect the width */
-}
-
-/* Header Styling with Black Background */
+/* Header - Responsive */
 .custom-header {
-  background-color: #000000; /* Black background for the header */
+  background-color: #000000;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Button Styles */
+.custom-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+  .custom-header nav {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Buttons */
 .custom-btn {
-  background-color: transparent; /* Transparent background */
-  color: #ffffff; /* White text */
-  border: 2px solid transparent; /* Initially no border */
-  transition: all 0.3s ease; /* Smooth transition for changes */
+  background-color: transparent;
+  color: #ffffff;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  padding: 10px 15px;
 }
 
-/* Hover Effect for Buttons */
 .custom-btn:hover {
-  background-color: #ffffff; /* White background on hover */
-  color: #000000; /* Black text on hover */
-  border-color: #ffffff; /* White border on hover */
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
-/* Footer Styling with Black Background */
-.custom-footer {
-  background-color: #000000; /* Black background for the footer */
+/* Responsive Button */
+@media (max-width: 768px) {
+  .custom-btn {
+    width: 100%;
+    text-align: center;
+  }
 }
 
-/* Footer Text Styling */
-.custom-footer p {
-  color: #ffffff; /* White text in the footer */
-}
-
-/* Full Height Section for Projects */
+/* Projects Section */
 #projects {
-  height: 100vh; /* Full height of the viewport */
-  display: flex; /* Flexbox layout */
-  align-items: center; /* Centers content vertically */
-  justify-content: center; /* Centers content horizontally */
-  padding-top: 50px; /* Adds top padding */
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 50px 20px;
+  text-align: center;
 }
 
-/* Card Styling */
+/* Responsive Cards */
 .card {
-  border-radius: 10px; /* Rounded corners for the card */
-  overflow: hidden; /* Ensures content inside the card stays within the rounded corners */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effects */
-  display: flex; /* Flexbox layout for card content */
-  flex-direction: column; /* Stacks card content vertically */
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.card:hover {
-  transform: translateY(-10px); /* Slightly lifts the card on hover */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Adds shadow to the card */
+/* Ensures grid layout adapts */
+@media (max-width: 992px) {
+  #projects {
+    flex-direction: column;
+    height: auto;
+  }
 }
 
-/* Card Image Styling */
-.card-img-top {
-  height: 200px; /* Fixed height for the image */
-  object-fit: cover; /* Ensures the image fits well inside the card */
+/* Responsive Footer */
+.custom-footer {
+  background-color: #000000;
+  text-align: center;
+  padding: 20px;
 }
 
-/* Card Body Styling */
-.card-body {
-  background-color: #fff; /* White background for the card body */
-  padding: 20px; /* Adds padding inside the card body */
+.custom-footer p {
+  color: #ffffff;
 }
 
-/* Card Title Styling */
-.card-title {
-  font-size: 1.5rem; /* Larger font size for the card title */
-  color: #007bff; /* Blue color for the card title */
+/* Responsive Form */
+.form-group {
+  margin-bottom: 20px;
 }
 
-/* Card Text Styling */
-.card-text {
-  font-size: 1rem; /* Standard font size for the text */
-  color: #333; /* Dark color for the text */
-  margin-bottom: 10px; /* Adds space below the text */
+@media (max-width: 768px) {
+  .form-group {
+    width: 100%;
+  }
 }
 
-/* Button Styling in the Card */
-.btn {
-  margin-right: 10px; /* Adds space between buttons */
+/* Responsive Cards */
+@media (max-width: 992px) {
+  .card-img-top {
+    height: 180px;
+  }
 }
 
-.btn-primary {
-  background-color: #007bff; /* Blue background for the primary button */
-  border: none; /* Removes the border */
-}
-
-.btn-primary:hover {
-  background-color: #0056b3; /* Darker blue on hover for the primary button */
-}
-
-.btn-secondary {
-  background-color: #6c757d; /* Gray background for the secondary button */
-  border: none; /* Removes the border */
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268; /* Darker gray on hover for the secondary button */
-}
-
-/* Responsive Design for Mobile */
 @media (max-width: 768px) {
   .card-img-top {
-      height: 150px; /* Smaller image size on mobile */
-  }
-
-  .card-body {
-      padding: 15px; /* Reduced padding inside the card on mobile */
+    height: 150px;
   }
 }
