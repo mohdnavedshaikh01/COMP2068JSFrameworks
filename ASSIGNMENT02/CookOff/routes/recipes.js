@@ -37,6 +37,14 @@ const upload = multer({
   }
 });
 
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error_msg', 'Please log in to access this resource');
+  res.redirect('/auth/login');
+}
+
 // Authentication middleware
 const isAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) return next();
@@ -108,7 +116,8 @@ router.get('/:id', async (req, res) => {
 
     res.render('recipes/show', {
       title: recipe.title,
-      recipe
+      recipe,
+      user: req.user
     });
   } catch (err) {
     console.error('Error fetching recipe:', err);
@@ -160,6 +169,102 @@ router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
     }
 
     req.flash('error_msg', err.message || 'Failed to save recipe');
+    res.redirect('back');
+  }
+});
+
+// Edit Recipe Form
+router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
+  try {
+    const recipe = await Recipe.findOne({
+      _id: req.params.id,
+      creator: req.user._id // Only allow creator to edit
+    });
+    
+    if (!recipe) {
+      req.flash('error_msg', 'Recipe not found or you are not authorized');
+      return res.redirect('/recipes');
+    }
+    
+    res.render('recipes/edit', { recipe });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Update Recipe
+router.put('/:id', ensureAuthenticated, upload.single('image'), async (req, res) => {
+  try {
+    let recipe = await Recipe.findOne({
+      _id: req.params.id,
+      creator: req.user._id
+    });
+    
+    if (!recipe) {
+      req.flash('error_msg', 'Recipe not found or not authorized');
+      return res.redirect('/recipes');
+    }
+    
+    // Update recipe fields
+    recipe.title = req.body.title;
+    recipe.description = req.body.description;
+    recipe.ingredients = Array.isArray(req.body.ingredients) 
+      ? req.body.ingredients 
+      : [req.body.ingredients];
+    recipe.instructions = req.body.instructions;
+    recipe.prepTime = req.body.prepTime;
+    recipe.servings = req.body.servings;
+    recipe.difficulty = req.body.difficulty;
+    recipe.tags = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
+    
+    if (req.file) {
+      // Delete old image if exists
+      if (recipe.image) {
+        const oldImagePath = path.join(__dirname, '../public', recipe.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      recipe.image = '/uploads/' + req.file.filename;
+    }
+    
+    await recipe.save();
+    req.flash('success_msg', 'Recipe updated successfully');
+    res.redirect(`/recipes/${recipe._id}`);
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error updating recipe');
+    res.redirect('back');
+  }
+});
+
+// Delete Recipe
+router.delete('/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    const recipe = await Recipe.findOneAndDelete({
+      _id: req.params.id,
+      creator: req.user._id
+    });
+    
+    if (!recipe) {
+      req.flash('error_msg', 'Recipe not found or not authorized');
+      return res.redirect('/recipes');
+    }
+    
+    // Delete associated image
+    if (recipe.image) {
+      const imagePath = path.join(__dirname, '../public', recipe.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+    
+    req.flash('success_msg', 'Recipe deleted successfully');
+    res.redirect('/recipes');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error deleting recipe');
     res.redirect('back');
   }
 });

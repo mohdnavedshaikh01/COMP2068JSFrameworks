@@ -9,10 +9,24 @@
 
 <div class="row">
   {{#each challenges}}
-    <div class="col-md-6 mb-4">
-      <div class="card h-100">
-        <div class="card-header">
-          <h5 class="mb-0">{{title}}</h5>
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5>{{title}}</h5>
+        {{#if (eq creator._id ../user._id)}}
+          <div class="btn-group">
+            <a href="/challenges/{{_id}}/edit" class="btn btn-sm btn-warning">
+              <i class="fas fa-edit"></i>
+            </a>
+            <form action="/challenges/{{_id}}?_method=DELETE" method="POST">
+              <button type="submit" class="btn btn-sm btn-danger" 
+                onclick="return confirm('Delete this challenge?')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+              </div>
+    
+          {{/if}}
         </div>
         <div class="card-body">
           <p>{{description}}</p>
@@ -23,12 +37,34 @@
         </div>
         <div class="card-footer">
           <a href="/challenges/{{_id}}" class="btn btn-primary">View Challenge</a>
-          {{#if (eq (includes participants user._id) true)}}
-            <span class="badge bg-success ms-2">Participating</span>
-          {{else}}
-            <form action="/challenges/{{_id}}/join" method="POST" class="d-inline ms-2">
-              <button type="submit" class="btn btn-outline-primary btn-sm">Join Challenge</button>
-            </form>
+          
+          {{#if ../user}}
+            {{#if (isCreator creator._id ../user._id)}}
+              {{!-- Creator actions --}}
+              <a href="/challenges/{{_id}}/edit" class="btn btn-warning ms-2">
+                <i class="fas fa-edit me-1"></i>Edit
+              </a>
+              <form action="/challenges/{{_id}}/delete" method="POST" class="d-inline ms-2">
+                <button type="submit" class="btn btn-danger" 
+                  onclick="return confirm('Are you sure you want to delete this challenge?')">
+                  <i class="fas fa-trash me-1"></i>Delete
+                </button>
+              </form>
+            {{else}}
+              {{!-- Participant actions --}}
+              {{#if (isParticipant participants ../user._id)}}
+                <span class="badge bg-success ms-2">Participating</span>
+                <a href="/recipes/new?challenge={{_id}}" class="btn btn-outline-primary ms-2">
+                  <i class="fas fa-plus me-1"></i>Submit Recipe
+                </a>
+              {{else}}
+                <form action="/challenges/{{_id}}/join" method="POST" class="d-inline ms-2">
+                  <button type="submit" class="btn btn-outline-primary">
+                    <i class="fas fa-user-plus me-1"></i>Join Challenge
+                  </button>
+                </form>
+              {{/if}}
+            {{/if}}
           {{/if}}
         </div>
       </div>
@@ -39,3 +75,4 @@
     </div>
   {{/each}}
 </div>
+

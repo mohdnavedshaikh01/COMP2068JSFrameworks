@@ -1,9 +1,3 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>{{recipe.title}}</h1>
-    <!-- REMOVED any edit/delete buttons -->
-  </div>
-
   <div class="row">
     <div class="col-md-8">
       <p class="lead">{{recipe.description}}</p>
@@ -13,6 +7,8 @@
         <span><i class="far fa-clock me-1"></i>{{recipe.prepTime}} mins</span>
         <span><i class="fas fa-utensils me-1"></i>{{recipe.servings}} servings</span>
       </div>
+
+      
 
       {{#if recipe.imageUrl}}
         <img src="{{recipe.imageUrl}}" class="img-fluid rounded mb-4" alt="{{recipe.title}}">

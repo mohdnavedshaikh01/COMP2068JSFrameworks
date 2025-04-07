@@ -4,6 +4,16 @@ const passport = require('passport');
 const { ensureAuthenticated, forwardAuthenticated } = require('../middleware/auth');
 const User = require('../models/User');
 
+// Add this temporary test route
+router.get('/test-session', (req, res) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  res.json({
+    session: req.session,
+    user: req.user
+  });
+});
+
 // Login page
 router.get('/login', forwardAuthenticated, (req, res) => {
   res.render('auth/login', { 

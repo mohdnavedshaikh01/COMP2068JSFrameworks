@@ -31,8 +31,16 @@
           </div>
         </div>
         <div class="card-footer bg-transparent">
-          <a href="/recipes/{{_id}}" class="btn btn-sm btn-outline-primary">View Recipe</a>
-        </div>
+  <a href="/recipes/{{_id}}" class="btn btn-sm btn-outline-primary">View Recipe</a>
+  {{#if ../user}}
+    {{#if (eq creator._id ../user._id)}}
+      <a href="/recipes/{{_id}}/edit" class="btn btn-sm btn-outline-secondary ms-1">Edit</a>
+      <form action="/recipes/{{_id}}?_method=DELETE" method="POST" class="d-inline ms-1">
+        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+      </form>
+    {{/if}}
+  {{/if}}
+</div>
       </div>
     </div>
   {{else}}

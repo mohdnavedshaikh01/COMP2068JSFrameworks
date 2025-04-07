@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Challenge = require('../models/Challenge');
-const { ensureAuthenticated } = require('./auth');
+const { ensureAuthenticated } = require('../middleware/auth');
 
 // Local auth middleware
 const isAuthenticated = (req, res, next) => {
@@ -26,10 +26,19 @@ router.get('/add', isAuthenticated, (req, res) => {
 // Get all challenges
 router.get('/', async (req, res) => {
   try {
-    const challenges = await Challenge.find({ isActive: true });
+    const challenges = await Challenge.find({ isActive: true })
+    .populate('creator', '_id username')
+    // .populate('creator', 'username') // Add this line
+    .populate('participants')
+    .populate('recipes')
+    .lean(); // Convert to plain JS object
+
+    console.log('Fetched challenges:', challenges);
+
     res.render('challenges/index', { 
       challenges,
-      title: 'Current Challenges'
+      title: 'Current Challenges',
+      user: req.user || null,
     });
   } catch (err) {
     console.error(err);
@@ -41,10 +50,12 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const challenge = await Challenge.findById(req.params.id)
+    .populate('creator', '_id username')
       .populate('participants')
-      .populate('recipes');
+      .populate('recipes')
     res.render('challenges/show', { 
       challenge,
+      user: req.user, 
       title: challenge.title
     });
   } catch (err) {
@@ -85,6 +96,7 @@ router.post('/add', isAuthenticated, async (req, res) => {
       rules: rules.split('\n'), // Split rules into an array
       participants: [req.user._id], // Add the creator as a participant
       isActive: true,
+      creator: req.user._id
     });
 
     // Save to MongoDB
@@ -104,6 +116,29 @@ router.post('/add', isAuthenticated, async (req, res) => {
     }
     
     res.redirect('/challenges/add');
+  }
+});
+
+// DELETE challenge
+router.delete('/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    // Find and delete only if user is creator
+    const challenge = await Challenge.findOneAndDelete({
+      _id: req.params.id,
+      creator: req.user._id
+    });
+
+    if (!challenge) {
+      req.flash('error_msg', 'Challenge not found or not authorized');
+      return res.redirect('/challenges');
+    }
+
+    req.flash('success_msg', 'Challenge deleted successfully');
+    res.redirect('/challenges');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error deleting challenge');
+    res.redirect('back');
   }
 });
 

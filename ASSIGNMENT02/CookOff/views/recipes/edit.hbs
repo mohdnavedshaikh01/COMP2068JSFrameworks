@@ -1,0 +1,107 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h4>Edit Recipe</h4>
+    </div>
+    <div class="card-body">
+      <form action="/recipes/{{recipe._id}}?_method=PUT" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="title" class="form-label">Recipe Title</label>
+          <input type="text" class="form-control" id="title" name="title" value="{{recipe.title}}" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="3" required>{{recipe.description}}</textarea>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label">Ingredients</label>
+          <div id="ingredientsContainer">
+            {{#each recipe.ingredients}}
+              <div class="input-group mb-2">
+                <input type="text" name="ingredients" class="form-control" value="{{this}}" required>
+                <button class="btn btn-outline-danger remove-ingredient" type="button">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            {{/each}}
+          </div>
+          <button id="addIngredient" class="btn btn-sm btn-outline-secondary" type="button">
+            <i class="fas fa-plus me-1"></i>Add Ingredient
+          </button>
+        </div>
+        
+        <div class="mb-3">
+          <label for="instructions" class="form-label">Instructions</label>
+          <textarea class="form-control" id="instructions" name="instructions" rows="5" required>{{recipe.instructions}}</textarea>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="prepTime" class="form-label">Prep Time (minutes)</label>
+            <input type="number" class="form-control" id="prepTime" name="prepTime" value="{{recipe.prepTime}}" min="1" required>
+          </div>
+          <div class="col-md-4">
+            <label for="servings" class="form-label">Servings</label>
+            <input type="number" class="form-control" id="servings" name="servings" value="{{recipe.servings}}" min="1">
+          </div>
+          <div class="col-md-4">
+            <label for="difficulty" class="form-label">Difficulty</label>
+            <select class="form-select" id="difficulty" name="difficulty">
+              <option value="Easy" {{#eq recipe.difficulty 'Easy'}}selected{{/eq}}>Easy</option>
+              <option value="Medium" {{#eq recipe.difficulty 'Medium'}}selected{{/eq}}>Medium</option>
+              <option value="Hard" {{#eq recipe.difficulty 'Hard'}}selected{{/eq}}>Hard</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <label for="image" class="form-label">Recipe Image</label>
+          <input type="file" class="form-control" id="image" name="image" accept="image/*">
+          {{#if recipe.image}}
+            <div class="mt-2">
+              <small>Current Image:</small>
+              <img src="{{recipe.image}}" class="img-thumbnail mt-1" style="max-height: 100px;">
+            </div>
+          {{/if}}
+        </div>
+        
+        <div class="mb-3">
+          <label for="tags" class="form-label">Tags (comma separated)</label>
+          <input type="text" class="form-control" id="tags" name="tags" value="{{recipe.tags.join ', '}}">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update Recipe</button>
+        <a href="/recipes/{{recipe._id}}" class="btn btn-secondary ms-2">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Dynamic ingredient fields
+  document.getElementById('addIngredient').addEventListener('click', () => {
+    const container = document.getElementById('ingredientsContainer');
+    const div = document.createElement('div');
+    div.className = 'input-group mb-2';
+    div.innerHTML = `
+      <input type="text" name="ingredients" class="form-control" required>
+      <button class="btn btn-outline-danger remove-ingredient" type="button">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+    container.appendChild(div);
+  });
+
+  // Remove ingredient field
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-ingredient') || 
+        e.target.closest('.remove-ingredient')) {
+      const inputGroup = e.target.closest('.input-group');
+      if (inputGroup && document.querySelectorAll('.input-group').length > 1) {
+        inputGroup.remove();
+      }
+    }
+  });
+</script>

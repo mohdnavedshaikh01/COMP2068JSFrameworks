@@ -9,7 +9,8 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const morgan = require('morgan');
 const debug = require('debug')('app:server');
-// const hbsLayouts = require('express-handlebars-layouts');
+const methodOverride = require('method-override');
+const fs = require('fs');
 
 // Import routes
 const indexRouter = require('./routes/index');
@@ -18,36 +19,60 @@ const recipesRouter = require('./routes/recipes');
 const challengesRouter = require('./routes/challenges');
 const leaderboardRouter = require('./routes/leaderboard');
 
-
-
 // Database connection
 const connectDB = require('./config/db');
 connectDB();
 
 const app = express();
 
-// View engine setup
+// View engine setup with all required helpers
 app.engine('hbs', engine({
   extname: '.hbs',
   defaultLayout: 'layout',
   layoutsDir: path.join(__dirname, 'views'),
   helpers: {
-
-    includes: function(array, value) {
-      return array.includes(value);
-    },
-    
     // Comparison helpers
-    eq: (a, b) => a === b,
+    eq: (a, b) => {
+  if (!a || !b) return false;
+  return a.toString() === b.toString();
+},
+    neq: (a, b) => a !== b,
     gt: (a, b) => a > b,
+    lt: (a, b) => a < b,
+    gte: (a, b) => a >= b,
+    lte: (a, b) => a <= b,
+    
+    // Array helpers
+    includes: (array, value) => array && array.includes(value),
+    length: (array) => array ? array.length : 0,
     
     // String helpers
-    truncate: (str, len) => str.length > len ? str.substring(0, len) + '...' : str,
+    truncate: (str, len) => str && str.length > len ? str.substring(0, len) + '...' : str,
+    uppercase: (str) => str && str.toUpperCase(),
+    lowercase: (str) => str && str.toLowerCase(),
     
     // Date helpers
-    formatDate: (date) => new Date(date).toLocaleDateString(),
+    formatDate: (date) => date && new Date(date).toLocaleDateString(),
     
-    // Layout helpers
+    // Logical helpers
+    and: (a, b) => a && b,
+    or: (a, b) => a || b,
+    not: (a) => !a,
+    
+    // Math helpers
+    add: (a, b) => a + b,
+    subtract: (a, b) => a - b,
+    multiply: (a, b) => a * b,
+    divide: (a, b) => a / b,
+    
+    // Special helpers for challenges
+    isCreator: (creatorId, userId) => creatorId && userId && creatorId.toString() === userId.toString(),
+    isParticipant: (participants, userId) => participants && userId && participants.some(p => p.toString() === userId.toString()),
+    
+    // Debug helper
+    debug: (value) => console.log(value) || '',
+    
+    // Content blocks
     contentFor: function(name, options) {
       const blocks = this._blocks || (this._blocks = {});
       const block = blocks[name] || (blocks[name] = []);
@@ -55,44 +80,23 @@ app.engine('hbs', engine({
     },
     yield: function(name) {
       const blocks = this._blocks || {};
-      return blocks[name] || '';
+      return blocks[name] ? blocks[name].join('\n') : '';
     }
   },
   runtimeOptions: {
     allowProtoPropertiesByDefault: true,
     allowProtoMethodsByDefault: true
-  },
-
-  fileExists: function(filepath) {
-    try {
-      return fs.existsSync(path.join(__dirname, '../public', filepath));
-    } catch (err) {
-      return false;
-    }
   }
-
 }));
+
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
-hbs.registerHelper('contentFor', function(name, options) {
-  const blocks = this._blocks || (this._blocks = {});
-  const block = blocks[name] || (blocks[name] = []);
-  block.push(options.fn(this));
-});
-
-// Enhanced middleware with debugging
+// Middleware
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Static files with debugging
-app.use(express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, path) => {
-    debug(`Serving static file: ${path}`);
-  }
-}));
-
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
 app.use(session({
@@ -102,18 +106,18 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
+// Method override for PUT/DELETE forms
+app.use(methodOverride('_method'));
+
+
 // Passport initialization
-require('./config/passport')(passport); // This line does both config and initialization
+require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-// Passport config
-require('./config/passport')(passport); ;
-
-// Global variables middleware with route logging
+// Global variables middleware
 app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
   res.locals.user = req.user || null;
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
@@ -121,62 +125,23 @@ app.use((req, res, next) => {
   next();
 });
 
-// Route debugging middleware
+// Routes
+app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/recipes', recipesRouter);
+app.use('/challenges', challengesRouter);
+app.use('/leaderboard', leaderboardRouter);
+
+// Error handlers
 app.use((req, res, next) => {
-  debug(`Route entered: ${req.originalUrl}`);
-  next();
-});
-
-// Routes with registration logging
-app.use('/', (req, res, next) => {
-  debug('Entering index routes');
-  next();
-}, indexRouter);
-
-app.use('/auth', (req, res, next) => {
-  debug('Entering auth routes');
-  next();
-}, authRouter);
-
-app.use('/recipes', (req, res, next) => {
-  debug('Entering recipes routes');
-  next();
-}, recipesRouter);
-
-app.use('/challenges', (req, res, next) => {
-  debug('Entering challenges routes');
-  next();
-}, challengesRouter);
-
-app.use('/leaderboard', (req, res, next) => {
-  debug('Entering leaderboard routes');
-  next();
-}, leaderboardRouter);
-
-// Test route
-app.get('/test', (req, res) => {
-  debug('Test route accessed');
-  res.send('Test route is working!');
-});
-
-// Enhanced 404 handler
-app.use((req, res, next) => {
-  debug(`404 - Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).render('error', {
     title: 'Page Not Found',
     status: 404,
-    message: 'The page you are looking for does not exist.',
-    suggestedRoutes: [
-      { path: '/', name: 'Home' },
-      { path: '/recipes', name: 'Recipes' },
-      { path: '/challenges', name: 'Challenges' }
-    ]
+    message: 'The page you are looking for does not exist.'
   });
 });
 
-// Error handler with detailed logging
 app.use((err, req, res, next) => {
-  debug(`Error occurred: ${err.stack}`);
   console.error(err.stack);
   res.status(500).render('error', {
     title: 'Server Error',
@@ -188,20 +153,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  debug(`Server running on http://localhost:${PORT}`);
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
-
-// Truncate long text
-hbs.registerHelper('truncate', (str, len) => {
-  if (str.length > len) {
-    return str.substring(0, len) + '...';
-  }
-  return str;
-});
-
-// // Format date helper
-// hbs.registerHelper('formatDate', (date, format) => {
-//   if (!date) return '';
-//   return moment(date).format(format);
-// });

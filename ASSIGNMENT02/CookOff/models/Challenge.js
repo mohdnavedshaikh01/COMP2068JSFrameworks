@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema; 
 
 const ChallengeSchema = new mongoose.Schema({
   title: { 
@@ -41,6 +42,10 @@ const ChallengeSchema = new mongoose.Schema({
   isActive: { 
     type: Boolean, 
     default: true 
+  },
+  creator: { type: Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
   },
   prize: String,
   rules: [String]

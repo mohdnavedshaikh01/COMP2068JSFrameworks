@@ -138,35 +138,55 @@
 
 {{#contentFor "main"}}
 <script>
+  // Debugging
+  console.log("Challenge form script loaded");
+  
   document.addEventListener('DOMContentLoaded', function() {
-    // Add Rule functionality
-    document.getElementById('addRule').addEventListener('click', function() {
-      const container = document.getElementById('rulesContainer');
-      const newRule = document.createElement('div');
-      newRule.className = 'input-group mb-2';
-      newRule.innerHTML = `
-        <input type="text" class="form-control" name="rules">
-        <button class="btn btn-outline-danger remove-rule" type="button">
-          <i class="fas fa-times"></i>
-        </button>
-      `;
-      container.appendChild(newRule);
-    });
+    console.log("DOM fully loaded");
+    
+    // Add Rule
+    const addRuleBtn = document.getElementById('addRule');
+    const rulesContainer = document.getElementById('rulesContainer');
+    
+    if (addRuleBtn && rulesContainer) {
+      addRuleBtn.addEventListener('click', function() {
+        console.log("Add Rule button clicked");
+        
+        const newRule = document.createElement('div');
+        newRule.className = 'input-group mb-2';
+        newRule.innerHTML = `
+          <input type="text" class="form-control" name="rules" required>
+          <button class="btn btn-outline-danger remove-rule" type="button">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        rulesContainer.appendChild(newRule);
+      });
+    } else {
+      console.error("Required elements not found");
+    }
 
-    // Remove Rule functionality
-    document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('remove-rule')) {
-        e.target.closest('.input-group').remove();
+    // Remove Rule (event delegation)
+    document.body.addEventListener('click', function(e) {
+      const removeBtn = e.target.closest('.remove-rule');
+      if (removeBtn) {
+        e.preventDefault();
+        const inputGroup = removeBtn.closest('.input-group');
+        if (inputGroup && document.querySelectorAll('#rulesContainer .input-group').length > 1) {
+          inputGroup.remove();
+        }
       }
     });
 
-    // End date validation
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
+    // Date validation
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
     
-    startDateInput.addEventListener('change', function() {
-      endDateInput.min = this.value;
-    });
+    if (startDate && endDate) {
+      startDate.addEventListener('change', function() {
+        endDate.min = this.value;
+      });
+    }
   });
 </script>
 {{/contentFor}}
