@@ -1,0 +1,78 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{recipe.title}}</h1>
+    <!-- REMOVED any edit/delete buttons -->
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <p class="lead">{{recipe.description}}</p>
+      
+      <div class="d-flex gap-3 mb-4">
+        <span class="badge bg-secondary">{{recipe.difficulty}}</span>
+        <span><i class="far fa-clock me-1"></i>{{recipe.prepTime}} mins</span>
+        <span><i class="fas fa-utensils me-1"></i>{{recipe.servings}} servings</span>
+      </div>
+
+      {{#if recipe.imageUrl}}
+        <img src="{{recipe.imageUrl}}" class="img-fluid rounded mb-4" alt="{{recipe.title}}">
+      {{/if}}
+
+      <div class="row">
+        <div class="col-md-6">
+          <h3><i class="fas fa-carrot me-2"></i>Ingredients</h3>
+          <ul class="list-group list-group-flush mb-4">
+            {{#each recipe.ingredients}}
+              <li class="list-group-item">{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <h3><i class="fas fa-list-ol me-2"></i>Instructions</h3>
+          <div class="bg-light p-3 rounded">
+            {{{recipe.instructions}}}
+          </div>
+        </div>
+      </div>
+      
+      <a href="/recipes" class="btn btn-secondary mt-4">
+        <i class="fas fa-arrow-left me-1"></i>Back to All Recipes
+      </a>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">About This Recipe</h5>
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              {{#if recipe.creator.avatarUrl}}
+                <img src="{{recipe.creator.avatarUrl}}" class="rounded-circle" width="50" alt="{{recipe.creator.username}}">
+              {{else}}
+                <i class="fas fa-user-circle fa-3x"></i>
+              {{/if}}
+            </div>
+            <div>
+              <p class="mb-0">Created by</p>
+              <h6 class="mb-0">{{recipe.creator.username}}</h6>
+            </div>
+          </div>
+          <p><i class="far fa-calendar-alt me-2"></i> {{formatDate recipe.createdAt}}</p>
+          
+          <!-- Rating display only (no input) -->
+          {{#if recipe.ratings.length}}
+            <div class="rating-section mt-3">
+              <h6>Average Rating</h6>
+              <div class="stars mb-2">
+                {{#stars recipe.averageRating}}
+                  <i class="fas fa-star{{#if empty}}-o{{/if}}"></i>
+                {{/stars}}
+                <span class="ms-2">({{recipe.ratings.length}} ratings)</span>
+              </div>
+            </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

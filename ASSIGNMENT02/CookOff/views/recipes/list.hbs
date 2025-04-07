@@ -1,0 +1,42 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>All Recipes</h1>
+  <!-- REMOVED the "Add Recipe" button completely -->
+</div>
+
+<div class="row">
+  {{#each recipes}}
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        {{#if imageUrl}}
+          <img src="{{imageUrl}}" class="card-img-top recipe-image" alt="{{title}}">
+        {{/if}}
+        <div class="card-body">
+          <h5 class="card-title">{{title}}</h5>
+          <p class="card-text">{{description}}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">By {{creator.username}}</small>
+            <div>
+              <span class="text-warning me-1">
+                {{#if ratings}}
+                  {{averageRating}} <i class="fas fa-star"></i>
+                {{else}}
+                  No ratings yet
+                {{/if}}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent">
+          <!-- Only keep the View button -->
+          <a href="/recipes/{{_id}}" class="btn btn-sm btn-outline-primary">View Recipe</a>
+          <!-- REMOVED any edit/delete buttons -->
+        </div>
+      </div>
+    </div>
+  {{else}}
+    <div class="col-12">
+      <!-- Changed message to remove suggestion to add recipes -->
+      <div class="alert alert-info">No recipes found.</div>
+    </div>
+  {{/each}}
+</div>

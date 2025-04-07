@@ -1,0 +1,179 @@
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h1 class="mb-0">{{challenge.title}}</h1>
+      </div>
+      <div class="card-body">
+        <p class="lead">{{challenge.description}}</p>
+        
+        <div class="mb-4">
+          <h5>Challenge Details</h5>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <strong>Theme:</strong> {{challenge.theme}}
+            </li>
+            <li class="list-group-item">
+              <strong>Duration:</strong> {{challenge.durationDays}} days 
+              ({{formatDate challenge.startDate}} to {{formatDate challenge.endDate}})
+            </li>
+            <li class="list-group-item">
+              <strong>Participants:</strong> {{challenge.participants.length}}
+            </li>
+            <li class="list-group-item">
+              <strong>Prize:</strong> {{challenge.prize}}
+            </li>
+          </ul>
+        </div>
+        
+        {{#if challenge.rules.length}}
+          <div class="mb-4">
+            <h5>Rules</h5>
+            <ol class="list-group list-group-numbered">
+              {{#each challenge.rules}}
+                <li class="list-group-item">{{this}}</li>
+              {{/each}}
+            </ol>
+          </div>
+        {{/if}}
+        
+        <div class="d-flex justify-content-between">
+          {{#if (includes challenge.participants user.id)}}
+            <a href="/recipes/new?challenge={{challenge._id}}" class="btn btn-primary">
+              <i class="fas fa-plus me-2"></i>Submit Recipe
+            </a>
+            <span class="badge bg-success">You're participating</span>
+          {{else}}
+            <form action="/challenges/{{challenge._id}}/join" method="POST">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>Join Challenge
+              </button>
+            </form>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Submitted Recipes -->
+    <div class="card">
+      <div class="card-header">
+        <h5>Submitted Recipes</h5>
+      </div>
+      <div class="card-body">
+        {{#if challenge.recipes.length}}
+          <div class="row">
+            {{#each challenge.recipes}}
+              <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                  {{#if imageUrl}}
+                    <img src="{{imageUrl}}" class="card-img-top" alt="{{title}}">
+                  {{/if}}
+                  <div class="card-body">
+                    <h5 class="card-title">{{title}}</h5>
+                    <p class="card-text">{{truncate description 100}}</p>
+                  </div>
+                  <div class="card-footer">
+                    <a href="/recipes/{{_id}}" class="btn btn-sm btn-outline-primary">View Recipe</a>
+                    {{#if (eq ../user.id creator._id)}}
+                      <form action="/recipes/{{_id}}?_method=DELETE" method="POST" class="d-inline ms-2">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                      </form>
+                    {{/if}}
+                  </div>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <div class="alert alert-info">No recipes submitted yet for this challenge.</div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <!-- Participants -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5>Participants</h5>
+      </div>
+      <div class="card-body">
+        {{#if challenge.participants.length}}
+          <div class="list-group">
+            {{#each challenge.participants}}
+              <a href="/profile/{{_id}}" class="list-group-item list-group-item-action">
+                <div class="d-flex align-items-center">
+                  {{#if avatarUrl}}
+                    <img src="{{avatarUrl}}" class="rounded-circle me-3" width="40" height="40">
+                  {{else}}
+                    <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                      <i class="fas fa-user text-white"></i>
+                    </div>
+                  {{/if}}
+                  <span>{{username}}</span>
+                </div>
+              </a>
+            {{/each}}
+          </div>
+        {{else}}
+          <p>No participants yet.</p>
+        {{/if}}
+      </div>
+    </div>
+    
+    <!-- Challenge Stats -->
+    <div class="card">
+      <div class="card-header">
+        <h5>Challenge Stats</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <h6>Time Remaining</h6>
+          <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" 
+                 style="width: {{timeRemainingPercent}}%" 
+                 aria-valuenow="{{timeRemainingPercent}}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+              {{timeRemainingDays}} days left
+            </div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <h6>Participation Rate</h6>
+          <div class="d-flex justify-content-between">
+            <span>{{participationRate}}%</span>
+            <span>{{challenge.participants.length}}/{{totalUsers}} users</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar bg-info" role="progressbar" 
+                 style="width: {{participationRate}}%" 
+                 aria-valuenow="{{participationRate}}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100"></div>
+          </div>
+        </div>
+        
+        <div>
+          <h6>Top Rated Recipe</h6>
+          {{#if topRecipe}}
+            <div class="card">
+              <div class="card-body">
+                <h6>{{topRecipe.title}}</h6>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-warning">
+                    {{topRecipe.averageRating}} <i class="fas fa-star"></i>
+                  </span>
+                  <a href="/recipes/{{topRecipe._id}}" class="btn btn-sm btn-outline-primary">View</a>
+                </div>
+              </div>
+            </div>
+          {{else}}
+            <p>No recipes rated yet.</p>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

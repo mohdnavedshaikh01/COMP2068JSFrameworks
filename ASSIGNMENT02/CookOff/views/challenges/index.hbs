@@ -1,0 +1,41 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>Current Challenges</h1>
+  {{#if user}}
+    <a href="/challenges/add" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Create Challenge
+    </a>
+  {{/if}}
+</div>
+
+<div class="row">
+  {{#each challenges}}
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">{{title}}</h5>
+        </div>
+        <div class="card-body">
+          <p>{{description}}</p>
+          <p><strong>Theme:</strong> {{theme}}</p>
+          <p><strong>Duration:</strong> {{durationDays}} days (ends {{formatDate endDate}})</p>
+          <p><strong>Participants:</strong> {{participants.length}}</p>
+          <p><strong>Recipes Submitted:</strong> {{recipes.length}}</p>
+        </div>
+        <div class="card-footer">
+          <a href="/challenges/{{_id}}" class="btn btn-primary">View Challenge</a>
+          {{#if (eq (includes participants user._id) true)}}
+            <span class="badge bg-success ms-2">Participating</span>
+          {{else}}
+            <form action="/challenges/{{_id}}/join" method="POST" class="d-inline ms-2">
+              <button type="submit" class="btn btn-outline-primary btn-sm">Join Challenge</button>
+            </form>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+  {{else}}
+    <div class="col-12">
+      <div class="alert alert-info">No active challenges at the moment. Check back later!</div>
+    </div>
+  {{/each}}
+</div>

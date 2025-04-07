@@ -1,0 +1,172 @@
+{{! views/challenges/add.hbs }}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Create New Challenge</h4>
+        </div>
+        <div class="card-body">
+          <form action="/challenges/add" method="POST">
+            {{#if error_msg}}
+              <div class="alert alert-danger">{{error_msg}}</div>
+            {{/if}}
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Challenge Title*</label>
+              <input 
+                type="text" 
+                class="form-control {{#if errors.title}}is-invalid{{/if}}" 
+                id="title" 
+                name="title" 
+                value="{{formData.title}}"
+                maxlength="100"
+                required
+              >
+              {{#if errors.title}}
+                <div class="invalid-feedback">{{errors.title}}</div>
+              {{/if}}
+              <small class="form-text text-muted">Max 100 characters</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description*</label>
+              <textarea 
+                class="form-control {{#if errors.description}}is-invalid{{/if}}" 
+                id="description" 
+                name="description" 
+                rows="3"
+                maxlength="500"
+                required
+              >{{formData.description}}</textarea>
+              {{#if errors.description}}
+                <div class="invalid-feedback">{{errors.description}}</div>
+              {{/if}}
+              <small class="form-text text-muted">Max 500 characters</small>
+            </div>
+
+            <div class="mb-3">
+              <label for="theme" class="form-label">Theme*</label>
+              <input 
+                type="text" 
+                class="form-control {{#if errors.theme}}is-invalid{{/if}}" 
+                id="theme" 
+                name="theme" 
+                value="{{formData.theme}}"
+                required
+              >
+              {{#if errors.theme}}
+                <div class="invalid-feedback">{{errors.theme}}</div>
+              {{/if}}
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input 
+                  type="date" 
+                  class="form-control" 
+                  id="startDate" 
+                  name="startDate"
+                  value="{{#if formData.startDate}}{{formatDate formData.startDate 'YYYY-MM-DD'}}{{/if}}"
+                >
+              </div>
+              <div class="col-md-6">
+                <label for="endDate" class="form-label">End Date*</label>
+                <input 
+                  type="date" 
+                  class="form-control {{#if errors.endDate}}is-invalid{{/if}}" 
+                  id="endDate" 
+                  name="endDate"
+                  value="{{#if formData.endDate}}{{formatDate formData.endDate 'YYYY-MM-DD'}}{{/if}}"
+                  required
+                >
+                {{#if errors.endDate}}
+                  <div class="invalid-feedback">{{errors.endDate}}</div>
+                {{/if}}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="prize" class="form-label">Prize (Optional)</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="prize" 
+                name="prize"
+                value="{{formData.prize}}"
+              >
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Rules (Add one at a time)</label>
+              <div id="rulesContainer">
+                {{#each formData.rules}}
+                  <div class="input-group mb-2">
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      name="rules" 
+                      value="{{this}}"
+                    >
+                    <button class="btn btn-outline-danger remove-rule" type="button">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                {{else}}
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control" name="rules">
+                    <button class="btn btn-outline-danger remove-rule" type="button">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                {{/each}}
+              </div>
+              <button id="addRule" class="btn btn-sm btn-outline-secondary" type="button">
+                <i class="fas fa-plus me-1"></i>Add Rule
+              </button>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create Challenge</button>
+            <a href="/challenges" class="btn btn-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#contentFor "main"}}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add Rule functionality
+    document.getElementById('addRule').addEventListener('click', function() {
+      const container = document.getElementById('rulesContainer');
+      const newRule = document.createElement('div');
+      newRule.className = 'input-group mb-2';
+      newRule.innerHTML = `
+        <input type="text" class="form-control" name="rules">
+        <button class="btn btn-outline-danger remove-rule" type="button">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      container.appendChild(newRule);
+    });
+
+    // Remove Rule functionality
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-rule')) {
+        e.target.closest('.input-group').remove();
+      }
+    });
+
+    // End date validation
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    
+    startDateInput.addEventListener('change', function() {
+      endDateInput.min = this.value;
+    });
+  });
+</script>
+{{/contentFor}}

@@ -1,0 +1,73 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">Add New Recipe</h4>
+      </div>
+      <div class="card-body">
+        <form action="/recipes" method="POST" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="title" class="form-label">Recipe Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Ingredients</label>
+            <div id="ingredientsContainer">
+              <div class="input-group mb-2">
+                <input type="text" name="ingredients" class="form-control" required>
+                <button class="btn btn-outline-danger remove-ingredient" type="button">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <button id="addIngredient" class="btn btn-sm btn-outline-secondary" type="button">
+              <i class="fas fa-plus me-1"></i>Add Ingredient
+            </button>
+          </div>
+          
+          <div class="mb-3">
+            <label for="instructions" class="form-label">Instructions</label>
+            <textarea class="form-control" id="instructions" name="instructions" rows="5" required></textarea>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label for="prepTime" class="form-label">Prep Time (minutes)</label>
+              <input type="number" class="form-control" id="prepTime" name="prepTime" min="1" required>
+            </div>
+            <div class="col-md-4">
+              <label for="servings" class="form-label">Servings</label>
+              <input type="number" class="form-control" id="servings" name="servings" min="1">
+            </div>
+            <div class="col-md-4">
+              <label for="difficulty" class="form-label">Difficulty</label>
+              <select class="form-select" id="difficulty" name="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="image" class="form-label">Recipe Image</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+          </div>
+          
+          <div class="mb-3">
+            <label for="tags" class="form-label">Tags (comma separated)</label>
+            <input type="text" class="form-control" id="tags" name="tags" placeholder="e.g., vegetarian, quick, dessert">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Submit Recipe</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

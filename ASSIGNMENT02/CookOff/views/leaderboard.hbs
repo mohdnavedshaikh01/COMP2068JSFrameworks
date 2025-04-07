@@ -1,0 +1,85 @@
+<div class="card">
+  <div class="card-header">
+    <h1>Weekly Leaderboard</h1>
+    <p class="mb-0">Week of {{weekStart}} to {{weekEnd}}</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Chef</th>
+            <th>Points</th>
+            <th>Recipes</th>
+            <th>Avg Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each users}}
+            <tr>
+              <td>
+                {{#if (eq @index 0)}}
+                  <span class="badge bg-warning text-dark">1st</span>
+                {{else if (eq @index 1)}}
+                  <span class="badge bg-secondary">2nd</span>
+                {{else if (eq @index 2)}}
+                  <span class="badge bg-danger">3rd</span>
+                {{else}}
+                  {{add @index 1}}
+                {{/if}}
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  {{#if avatarUrl}}
+                    <img src="{{avatarUrl}}" class="rounded-circle me-3" width="40" height="40">
+                  {{else}}
+                    <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                      <i class="fas fa-user text-white"></i>
+                    </div>
+                  {{/if}}
+                  <a href="/profile/{{_id}}" class="text-decoration-none">{{username}}</a>
+                </div>
+              </td>
+              <td>{{points}}</td>
+              <td>{{recipes.length}}</td>
+              <td>
+                {{#if (gt recipes.length 0)}}
+                  {{averageRating}} <i class="fas fa-star text-warning"></i>
+                {{else}}
+                  -
+                {{/if}}
+              </td>
+            </tr>
+          {{else}}
+            <tr>
+              <td colspan="5" class="text-center">No users found for this week.</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="mt-4">
+      <h5>How Points Are Calculated</h5>
+      <div class="card">
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <strong>Recipe Submission:</strong> 10 points per recipe
+            </li>
+            <li class="list-group-item">
+              <strong>Challenge Participation:</strong> 20 points per challenge
+            </li>
+            <li class="list-group-item">
+              <strong>Ratings Received:</strong> 5 points per star (average)
+            </li>
+            <li class="list-group-item">
+              <strong>Winning a Challenge:</strong> 50 points bonus
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
