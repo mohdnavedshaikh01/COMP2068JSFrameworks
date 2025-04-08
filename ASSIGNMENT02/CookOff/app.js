@@ -138,7 +138,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
-    dbName: 'cookoff' // Add your specific database name here
+    mongoOptions: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    },
+    collectionName: 'sessions' // optional
   }),
   resave: false,
   saveUninitialized: false,
