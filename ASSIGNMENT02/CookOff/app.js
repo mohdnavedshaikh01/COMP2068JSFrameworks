@@ -134,14 +134,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    dbName: 'cookoff' // Add your specific database name here
+  }),
   resave: false,
   saveUninitialized: false,
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
+
 
 // Method override for PUT/DELETE forms
 app.use(methodOverride('_method'));
