@@ -108,6 +108,21 @@ app.engine('hbs', engine({
   }
 }));
 
+// Add this helper in your handlebars configuration
+hbs.handlebars.registerHelper('fileExists', function(filepath, options) {
+  const fs = require('fs');
+  const path = require('path');
+  const fullPath = path.join(__dirname, '..', 'public', filepath);
+  
+  try {
+    return fs.existsSync(fullPath) ? 
+      options.fn(this) : 
+      options.inverse(this);
+  } catch (err) {
+    return options.inverse(this);
+  }
+});
+
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -115,6 +130,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
@@ -174,3 +190,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
+

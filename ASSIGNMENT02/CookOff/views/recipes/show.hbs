@@ -3,25 +3,16 @@
     <!-- Image Section -->
     <div class="image-container">
       {{#if recipe.image}}
-        {{#fileExists recipe.image}}
-          <img src="{{recipe.image}}" 
-               class="card-img-top recipe-image" 
-               alt="{{recipe.title}}"
-               onerror="this.onerror=null;this.src='/images/default-recipe.jpg';">
-        {{else}}
-          <div class="alert alert-warning">
-            Image file not found at: {{recipe.image}}
-          </div>
-          <div class="no-image-placeholder">
-            <i class="fas fa-utensils fa-5x"></i>
-          </div>
-        {{/fileExists}}
-      {{else}}
-        <div class="no-image-placeholder">
-          <i class="fas fa-utensils fa-5x"></i>
-          <small class="mt-2">No image provided</small>
-        </div>
-      {{/if}}
+  <img src="public/uploads/{{recipe.image}}" 
+       class="card-img-top recipe-image" 
+       alt="{{recipe.title}}"
+       onerror="this.onerror=null;this.src='/images/default-recipe.jpg';">
+{{else}}
+  <div class="no-image-placeholder">
+    <i class="fas fa-utensils fa-5x"></i>
+    <small class="mt-2">No image provided</small>
+  </div>
+{{/if}}
     </div>
 
     <div class="card-body">
