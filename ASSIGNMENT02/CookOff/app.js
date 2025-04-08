@@ -31,6 +31,25 @@ app.engine('hbs', engine({
   defaultLayout: 'layout',
   layoutsDir: path.join(__dirname, 'views'),
   helpers: {
+
+    stars: function(n, options) {
+      const full = Math.floor(n);
+      const half = n % 1 >= 0.5 ? 1 : 0;
+      const empty = 5 - full - half;
+      
+      let result = '';
+      for (let i = 0; i < full; i++) {
+        result += options.fn({ full: true, empty: false });
+      }
+      if (half) {
+        result += options.fn({ full: false, empty: false });
+      }
+      for (let i = 0; i < empty; i++) {
+        result += options.fn({ full: false, empty: true });
+      }
+      return result;
+    },
+
     // Comparison helpers
     eq: (a, b) => {
   if (!a || !b) return false;

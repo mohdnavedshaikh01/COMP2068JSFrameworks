@@ -48,6 +48,10 @@ const RecipeSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     score: { type: Number, min: 1, max: 5 }
   }],
+  averageRating: {
+    type: Number,
+    default: 0
+  },
   challenge: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Challenge' 
@@ -55,11 +59,11 @@ const RecipeSchema = new mongoose.Schema({
   tags: [String]
 });
 
-// Calculate average rating
-RecipeSchema.virtual('averageRating').get(function() {
-  if (this.ratings.length === 0) return 0;
-  const sum = this.ratings.reduce((acc, item) => acc + item.score, 0);
-  return sum / this.ratings.length;
-});
+// // Calculate average rating
+// RecipeSchema.virtual('averageRating').get(function() {
+//   if (this.ratings.length === 0) return 0;
+//   const sum = this.ratings.reduce((acc, item) => acc + item.score, 0);
+//   return sum / this.ratings.length;
+// });
 
 module.exports = mongoose.model('Recipe', RecipeSchema);

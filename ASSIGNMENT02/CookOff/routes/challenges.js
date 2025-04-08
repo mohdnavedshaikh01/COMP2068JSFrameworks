@@ -119,6 +119,38 @@ router.post('/add', isAuthenticated, async (req, res) => {
   }
 });
 
+// POST join challenge
+router.post('/:id/join', ensureAuthenticated, async (req, res) => {
+  try {
+    const challenge = await Challenge.findById(req.params.id);
+    
+    if (!challenge) {
+      req.flash('error_msg', 'Challenge not found');
+      return res.redirect('/challenges');
+    }
+    
+    // Check if user already joined
+    if (challenge.participants.includes(req.user._id)) {
+      req.flash('error_msg', 'You already joined this challenge');
+      return res.redirect(`/challenges/${challenge._id}`);
+    }
+    
+    // Add user to participants
+    challenge.participants.push(req.user._id);
+    await challenge.save();
+
+    req.session.joiningChallenge = challenge._id;
+    
+    // Redirect to recipe creation with challenge context
+    res.redirect(`/recipes/new?challenge=${challenge._id}`);
+    
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error joining challenge');
+    res.redirect('/challenges');
+  }
+});
+
 // DELETE challenge
 router.delete('/:id', ensureAuthenticated, async (req, res) => {
   try {

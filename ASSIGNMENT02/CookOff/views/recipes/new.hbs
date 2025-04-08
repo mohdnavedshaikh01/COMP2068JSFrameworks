@@ -6,6 +6,10 @@
       </div>
       <div class="card-body">
         <form action="/recipes" method="POST" enctype="multipart/form-data">
+
+         {{#if challenge}}
+    <input type="hidden" name="challenge" value="{{challenge._id}}">
+  {{/if}}
           <div class="mb-3">
             <label for="title" class="form-label">Recipe Title</label>
             <input type="text" class="form-control" id="title" name="title" required>

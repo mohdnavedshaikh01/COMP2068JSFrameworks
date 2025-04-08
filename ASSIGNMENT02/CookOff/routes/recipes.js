@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
+const Challenge = require('../models/Challenge');
+const User = require('../models/User');
 const passport = require('passport');
 const multer = require('multer');
 const path = require('path');
@@ -37,6 +39,7 @@ const upload = multer({
   }
 });
 
+// Authentication middleware
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
@@ -44,13 +47,6 @@ function ensureAuthenticated(req, res, next) {
   req.flash('error_msg', 'Please log in to access this resource');
   res.redirect('/auth/login');
 }
-
-// Authentication middleware
-const isAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) return next();
-  req.flash('error_msg', 'Please log in first');
-  res.redirect('/auth/login');
-};
 
 // Helper to check file existence
 const fileExists = (filePath) => {
@@ -68,11 +64,34 @@ hbs.registerHelper('fileExists', function(filePath, options) {
 });
 
 // GET form to add new recipe
-router.get('/new', isAuthenticated, (req, res) => {
-  res.render('recipes/new', {
-    title: 'Add New Recipe',
-    user: req.user
-  });
+router.get('/new', ensureAuthenticated, async (req, res) => {
+  try {
+    let challenge = null;
+    const challengeId = req.session.joiningChallenge || req.query.challenge;
+    
+    if (challengeId) {
+      challenge = await Challenge.findById(challengeId);
+      
+      // Clear the session after using it
+      if (req.session.joiningChallenge) {
+        delete req.session.joiningChallenge;
+      }
+      
+      if (!challenge) {
+        req.flash('error_msg', 'Challenge not found');
+        return res.redirect('/recipes/new');
+      }
+    }
+    
+    res.render('recipes/new', {
+      title: 'Add New Recipe',
+      challenge,
+      user: req.user
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
 });
 
 // GET all recipes
@@ -83,7 +102,8 @@ router.get('/', async (req, res) => {
       .lean();
     res.render('recipes/list', {
       title: 'All Recipes',
-      recipes
+      recipes,
+      user: req.user
     });
   } catch (err) {
     console.error('Error fetching recipes:', err);
@@ -127,9 +147,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST handle new recipe submission
-router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
+router.post('/', ensureAuthenticated, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, ingredients, instructions, prepTime, servings, difficulty, tags } = req.body;
+    const { title, description, ingredients, instructions, prepTime, servings, difficulty, tags, challenge } = req.body;
 
     // Basic validation
     if (!title || !description) {
@@ -154,12 +174,38 @@ router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
       difficulty: difficulty || 'Medium',
       tags: processedTags,
       creator: req.user._id,
+      challenge: challenge || null,
       image: req.file ? '/uploads/' + req.file.filename : null
     });
 
-    await newRecipe.save();
-    req.flash('success_msg', 'Recipe added successfully!');
-    res.redirect(`/recipes/${newRecipe._id}`);
+    const savedRecipe = await newRecipe.save();
+
+    // Points calculation
+    let pointsEarned = 10; // Base 10 points for submission
+    
+    if (challenge) {
+      // Add recipe to challenge
+      await Challenge.findByIdAndUpdate(challenge, {
+        $push: { recipes: savedRecipe._id }
+      });
+      
+      // Check if first time participating
+      const user = await User.findById(req.user._id);
+      if (!user.challengesParticipated.includes(challenge)) {
+        pointsEarned += 20; // 20 points for challenge participation
+        user.challengesParticipated.push(challenge);
+        await user.save();
+      }
+    }
+    
+    // Update user points
+    await User.findByIdAndUpdate(req.user._id, {
+      $inc: { points: pointsEarned },
+      $push: { recipes: savedRecipe._id }
+    });
+    
+    req.flash('success_msg', `Recipe created! You earned ${pointsEarned} points`);
+    res.redirect(`/recipes/${savedRecipe._id}`);
   } catch (err) {
     console.error('Error saving recipe:', err);
     
@@ -173,16 +219,61 @@ router.post('/', isAuthenticated, upload.single('image'), async (req, res) => {
   }
 });
 
+// POST rate a recipe
+router.post('/:id/rate', ensureAuthenticated, async (req, res) => {
+  try {
+    const { rating } = req.body;
+    const recipe = await Recipe.findById(req.params.id);
+    
+    if (!recipe) {
+      req.flash('error_msg', 'Recipe not found');
+      return res.redirect('back');
+    }
+    
+    // Validate rating
+    if (!rating || rating < 1 || rating > 5) {
+      req.flash('error_msg', 'Please provide a valid rating (1-5 stars)');
+      return res.redirect('back');
+    }
+    
+    // Add rating
+    recipe.ratings.push(Number(rating));
+    recipe.averageRating = calculateAverage(recipe.ratings);
+    await recipe.save();
+    
+    // Update creator's points (5 points per star)
+    const creator = await User.findById(recipe.creator);
+    if (creator) {
+      creator.points += Number(rating) * 5;
+      await creator.save();
+    }
+    
+    req.flash('success_msg', 'Rating submitted!');
+    res.redirect('back');
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error submitting rating');
+    res.redirect('back');
+  }
+});
+
+// Helper function for average rating
+function calculateAverage(ratings) {
+  if (ratings.length === 0) return 0;
+  const sum = ratings.reduce((total, rating) => total + rating, 0);
+  return sum / ratings.length;
+}
+
 // Edit Recipe Form
 router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
   try {
     const recipe = await Recipe.findOne({
       _id: req.params.id,
-      creator: req.user._id // Only allow creator to edit
+      creator: req.user._id
     });
     
     if (!recipe) {
-      req.flash('error_msg', 'Recipe not found or you are not authorized');
+      req.flash('error_msg', 'Recipe not found or not authorized');
       return res.redirect('/recipes');
     }
     
