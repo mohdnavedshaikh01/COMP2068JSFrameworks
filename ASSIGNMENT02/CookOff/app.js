@@ -3,7 +3,6 @@ const express = require('express');
 const path = require('path');
 const hbs = require('hbs');
 const { engine } = require('express-handlebars');
-const { MongoClient } = require('mongodb'); 
 const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
@@ -135,53 +134,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// First establish MongoDB connection
-const clientPromise = MongoClient.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  store: MongoStore.create({
-    clientPromise: clientPromise,
-    dbName: 'cookoff',  // Your database name
-    collectionName: 'sessions',
-    stringify: false,
-    autoRemove: 'interval',
-    autoRemoveInterval: 60 // Clean up expired sessions every 60 minutes
-  }),
+  store: MongoStore.create({ 
+    mongoUrl: process.env.MONGO_URI }),
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 86400000 // 24 hours
-  }
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
-
-// Add connection logging
-clientPromise
-  .then(client => console.log('MongoDB connected to', client.options.dbName))
-  .catch(err => console.error('MongoDB connection failed:', err));
-
-  app.get('/session-health', async (req, res) => {
-    try {
-      const client = await clientPromise;
-      await client.db().admin().ping();
-      res.json({
-        status: 'healthy',
-        mongo: 'connected',
-        sessionStore: 'active'
-      });
-    } catch (err) {
-      res.status(500).json({
-        status: 'error',
-        error: err.message
-      });
-    }
-  });
-
 
 // Method override for PUT/DELETE forms
 app.use(methodOverride('_method'));
