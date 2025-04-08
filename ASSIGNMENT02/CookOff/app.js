@@ -134,20 +134,52 @@ app.use(express.urlencoded({ extended: true }));
 app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// First establish MongoDB connection
+const clientPromise = MongoClient.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+// Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET,
   store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    mongoOptions: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    },
-    collectionName: 'sessions' // optional
+    clientPromise: clientPromise,
+    dbName: 'cookoff',  // Your database name
+    collectionName: 'sessions',
+    stringify: false,
+    autoRemove: 'interval',
+    autoRemoveInterval: 60 // Clean up expired sessions every 60 minutes
   }),
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 86400000 // 24 hours
+  }
 }));
+
+// Add connection logging
+clientPromise
+  .then(client => console.log('MongoDB connected to', client.options.dbName))
+  .catch(err => console.error('MongoDB connection failed:', err));
+
+  app.get('/session-health', async (req, res) => {
+    try {
+      const client = await clientPromise;
+      await client.db().admin().ping();
+      res.json({
+        status: 'healthy',
+        mongo: 'connected',
+        sessionStore: 'active'
+      });
+    } catch (err) {
+      res.status(500).json({
+        status: 'error',
+        error: err.message
+      });
+    }
+  });
 
 
 // Method override for PUT/DELETE forms
