@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
 const flash = require('connect-flash');
+const MongoStore = require('connect-mongo');
 const morgan = require('morgan');
 const debug = require('debug')('app:server');
 const methodOverride = require('method-override');
