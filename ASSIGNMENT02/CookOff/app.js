@@ -20,23 +20,9 @@ const recipesRouter = require('./routes/recipes');
 const challengesRouter = require('./routes/challenges');
 const leaderboardRouter = require('./routes/leaderboard');
 
-// Database connection - MODIFIED SECTION
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-    return conn;
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  }
-};
-
-// Connect to MongoDB first
-const mongooseConnection = connectDB();
+// Database connection
+const connectDB = require('./config/db');
+connectDB();
 
 const app = express();
 
