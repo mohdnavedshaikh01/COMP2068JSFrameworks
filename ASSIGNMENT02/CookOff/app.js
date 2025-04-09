@@ -150,21 +150,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback-secret-for-dev', // Explicit secret
-  store: MongoStore.create({
-    clientPromise: mongooseConnection.then(conn => conn.connection.getClient()),
-    dbName: 'cookoff',
-    collectionName: 'sessions',
-    ttl: 14 * 24 * 60 * 60 // 14 days
-  }),
+  secret: process.env.SESSION_SECRET,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
 // Method override for PUT/DELETE forms
