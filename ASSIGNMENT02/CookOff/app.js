@@ -148,12 +148,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration - UPDATED
+// Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'fallback-secret-for-dev', // Explicit secret
   store: MongoStore.create({
     clientPromise: mongooseConnection.then(conn => conn.connection.getClient()),
-    dbName: 'cookoff', // specify your database name
+    dbName: 'cookoff',
     collectionName: 'sessions',
     ttl: 14 * 24 * 60 * 60 // 14 days
   }),
