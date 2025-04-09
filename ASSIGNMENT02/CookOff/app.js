@@ -20,9 +20,23 @@ const recipesRouter = require('./routes/recipes');
 const challengesRouter = require('./routes/challenges');
 const leaderboardRouter = require('./routes/leaderboard');
 
-// Database connection
-const connectDB = require('./config/db');
-connectDB();
+// Database connection - MODIFIED SECTION
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    return conn;
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  }
+};
+
+// Connect to MongoDB first
+const mongooseConnection = connectDB();
 
 const app = express();
 
@@ -134,14 +148,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration
+// Session configuration - UPDATED
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  store: MongoStore.create({ 
-    mongoUrl: process.env.MONGO_URI }),
+  store: MongoStore.create({
+    clientPromise: mongooseConnection.then(conn => conn.connection.getClient()),
+    dbName: 'cookoff', // specify your database name
+    collectionName: 'sessions',
+    ttl: 14 * 24 * 60 * 60 // 14 days
+  }),
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' }
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Method override for PUT/DELETE forms
