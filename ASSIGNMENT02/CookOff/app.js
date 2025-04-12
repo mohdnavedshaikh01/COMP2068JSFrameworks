@@ -134,7 +134,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('public/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.set('trust proxy', 1);
+
 
 // Session configuration
 app.use(session({
@@ -142,9 +142,7 @@ app.use(session({
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production',
-            domain: 'cookoff-wudg.onrender.com'
-}
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
 // Method override for PUT/DELETE forms
