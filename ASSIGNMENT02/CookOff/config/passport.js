@@ -28,8 +28,10 @@ function setupPassport(passport) {
     new GitHubStrategy({
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: '/auth/github/callback'
-    },
+      callbackURL: process.env.NODE_ENV === 'production' 
+      ? 'https://your-app.onrender.com/auth/github/callback' 
+      : 'http://localhost:3000/auth/github/callback'
+    }, 
     async (accessToken, refreshToken, profile, done) => {
       try {
         let user = await User.findOne({ githubId: profile.id });
