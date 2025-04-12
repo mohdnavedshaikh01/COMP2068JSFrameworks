@@ -1,12 +1,14 @@
 # CookOff - Culinary Challenge Platform 🍳🏆
 
+https://cookoff-wudg.onrender.com/
+
 ## About the Project
 
 CookOff is an interactive web application where cooking enthusiasts can compete in culinary challenges, share recipes, and track their progress. Built as a full-stack application, it features user authentication, real-time leaderboards, and a responsive design for seamless use across devices.
 
 ## Live Website
 - Access the deployed application at:  
-  
+  https://cookoff-wudg.onrender.com/
 
 ## View Files and Their Functions
 
@@ -78,6 +80,3 @@ CookOff is an interactive web application where cooking enthusiasts can compete 
 - [Mongoose](https://mongoosejs.com/) - MongoDB object modeling
 - [Chart.js](https://www.chartjs.org/) - Data visualization
 - [Multer](https://github.com/expressjs/multer) - File upload handling
-
-
-
