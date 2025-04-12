@@ -127,6 +127,7 @@ hbs.handlebars.registerHelper('fileExists', function(filepath, options) {
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
+
 // Middleware
 app.use(morgan('dev'));
 app.use(express.json());
