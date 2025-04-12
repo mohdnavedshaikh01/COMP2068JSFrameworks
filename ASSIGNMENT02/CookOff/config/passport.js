@@ -28,7 +28,7 @@ function setupPassport(passport) {
     new GitHubStrategy({
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: 'http://localhost:3000/auth/github/callback'
+      callbackURL: 'http://cookoff-wudg.onrender.com/auth/github/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
