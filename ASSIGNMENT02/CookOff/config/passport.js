@@ -29,7 +29,7 @@ function setupPassport(passport) {
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: process.env.NODE_ENV === 'production' 
-      ? 'https://your-app.onrender.com/auth/github/callback' 
+      ? 'http://cookoff-wudg.onrender.com/auth/github/callback' 
       : 'http://localhost:3000/auth/github/callback'
     }, 
     async (accessToken, refreshToken, profile, done) => {
